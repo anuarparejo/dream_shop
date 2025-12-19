@@ -3,6 +3,7 @@ package com.parejo.msvc_producto.services;
 import com.parejo.msvc_producto.dtos.req.ProductReqDTO;
 import com.parejo.msvc_producto.dtos.res.ProductResDTO;
 import com.parejo.msvc_producto.entities.Product;
+import com.parejo.msvc_producto.exceptions.ResourceNotFoundException;
 import com.parejo.msvc_producto.mappers.ProductMapper;
 import com.parejo.msvc_producto.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
     public Product findById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() ->
-                        new NullPointerException("Producto no encontrado"));
+                        new ResourceNotFoundException("Producto no encontrado"));
         // todo crear exception personalizada
     }
 
@@ -48,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
         if (product.getIsActive()) {
             product.setIsActive(false);
         }else  {
-            throw new NullPointerException("Producto no encontrado");
+            throw new ResourceNotFoundException("Producto desactivado");
             // todo crear exception personalizada
         }
     }
