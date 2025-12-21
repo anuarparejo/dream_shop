@@ -36,9 +36,19 @@ public class ProductController {
         return ResponseEntity.ok(productService.findById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/disable/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         productService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResDTO> update(@PathVariable Long id, @Valid @RequestBody ProductReqDTO dto) {
+        return ResponseEntity.ok(productService.update(id,dto));
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<Page<ProductResDTO>> findByCategoryId(@PathVariable Long categoryId,@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(productService.findByCategoryIdAndIsActiveTrue(categoryId, pageable));
     }
 }

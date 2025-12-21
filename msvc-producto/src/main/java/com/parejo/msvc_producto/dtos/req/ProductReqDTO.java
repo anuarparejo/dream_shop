@@ -20,8 +20,11 @@ public record ProductReqDTO(
         BigDecimal price,
 
         @Min(value = 0, message = "El stock no puede ser negativo")
+        @NotNull(message = "El stock es obligatorio")
         Integer stockQuantity,
 
+        @Min(value = 0, message = "La categoria no puede ser negativa")
+        @NotNull(message = "La categoria es obligatoria")
         Long categoryId,
 
         @URL(message = "El campo url debe tener un formato valido")
@@ -29,6 +32,6 @@ public record ProductReqDTO(
         String imageUrl,
 
         @DecimalMin(value = "0.0", message = "El descuento no puede ser negativo")
-        Double discountPercentage
+         Double discountPercentage
 ) {
 }

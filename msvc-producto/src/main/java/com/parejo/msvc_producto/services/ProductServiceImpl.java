@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -26,15 +27,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProductResDTO> findAll(Pageable pageable) {
-        Page<Product> products = productRepository.findAllWhereIsActiveTrue(pageable);
+        Page<Product> products = productRepository.findAllByIsActiveTrue(pageable);
         return products.map(productMapper::toResDTO);
     }
 
     @Override
     @Transactional
     public ProductResDTO save(@NonNull ProductReqDTO dto) {
-        Category category = categoryRepository.findByIdWhereIsActiveTrue(dto.categoryId())
+        Category category = categoryRepository.findByIdAndIsActiveTrue(dto.categoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+        System.out.println(category);
 
         Product product = productMapper.toEntity(dto, category);
         Product productSaved = productRepository.save(product);
@@ -45,18 +47,43 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductResDTO findById(Long id) {
-        Product product = productRepository.findByIdWhereIsActiveTrue(id)
+        Product product = productRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Producto no encontrado"));
             return  productMapper.toResDTO(product);
     }
 
     @Override
+    public Page<ProductResDTO> findByCategoryIdAndIsActiveTrue(Long categoryId, Pageable pageable) {
+        Category category = categoryRepository.findByIdAndIsActiveTrue(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+
+        Page<Product> products = productRepository.findByCategoryIdAndIsActiveTrue(category.getId(), pageable);
+
+        return products.map(productMapper::toResDTO);
+    }
+
+
+    @Override
     @Transactional
     public void deleteById(Long id) {
-        Product product = productRepository.findByIdWhereIsActiveTrue(id)
+        Product product = productRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Producto no encontrado"));
         product.setIsActive(false);
+    }
+
+    @Override
+    @Transactional
+    public ProductResDTO update(Long id, ProductReqDTO dto) {
+        productRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Producto no encontrado"));
+        Category category = categoryRepository.findByIdAndIsActiveTrue(dto.categoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+
+        Product productSaved = productMapper.toEntity(id, dto, category);
+
+        return productMapper.toResDTO(productRepository.save(productSaved));
     }
 }

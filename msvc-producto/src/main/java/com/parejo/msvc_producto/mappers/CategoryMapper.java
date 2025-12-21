@@ -12,6 +12,7 @@ public class CategoryMapper {
        return Category.builder()
                 .name(dto.name())
                 .type(dto.type())
+                .isActive(true)
                 .build();
     }
 

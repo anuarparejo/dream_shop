@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface CategoryRepository extends CrudRepository<Category, Long> {
-   Optional<Category> findByIdWhereIsActiveTrue(Long id);
-    Page<Category> findAllWhereIsActiveTrue(Pageable pageable);
+   Optional<Category> findByIdAndIsActiveTrue(Long id);
+    Page<Category> findAllByIsActiveTrue(Pageable pageable);
 
 }

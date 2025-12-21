@@ -1,5 +1,6 @@
 package com.parejo.msvc_producto.exceptions;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -33,7 +34,8 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("errors", errors);
+        body.put("message", errors);
+        body.put("errors", ex.getMessage());
         body.put("status", HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
@@ -45,7 +47,19 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", "Ocurrió un error inesperado en el servidor");
+        body.put("errors", ex.getMessage());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "El recurso está siendo utilizado por otros elementos.");
+        body.put("errors", ex.getMessage());
+        body.put("status", HttpStatus.CONFLICT.value());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 }

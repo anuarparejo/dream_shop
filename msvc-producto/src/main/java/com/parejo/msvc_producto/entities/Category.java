@@ -24,4 +24,16 @@ public class Category {
     private List<Product> products;
 
     private Boolean isActive;
+
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", products=" + products +
+                ", isActive=" + isActive +
+                '}';
+    }
 }

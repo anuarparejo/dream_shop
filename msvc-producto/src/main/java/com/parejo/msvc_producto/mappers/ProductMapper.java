@@ -26,6 +26,20 @@ public class ProductMapper {
                 .build();
     }
 
+    public Product toEntity(Long id, ProductReqDTO dto, Category category) {
+        return Product.builder()
+                .id(id)
+                .name(dto.name())
+                .description(dto.description())
+                .price(dto.price())
+                .stockQuantity(dto.stockQuantity())
+                .category(category)
+                .imageUrl(dto.imageUrl())
+                .discountPercentage(dto.discountPercentage())
+                .isActive(true)
+                .build();
+    }
+
     public ProductResDTO toResDTO(Product entity) {
         return new ProductResDTO(
                 entity.getId(),

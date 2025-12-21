@@ -1,5 +1,6 @@
 package com.parejo.msvc_producto.services;
 
+
 import com.parejo.msvc_producto.dtos.req.CategoryReqDTO;
 import com.parejo.msvc_producto.dtos.res.CategoryResDTO;
 import com.parejo.msvc_producto.entities.Category;
@@ -7,6 +8,7 @@ import com.parejo.msvc_producto.exceptions.ResourceNotFoundException;
 import com.parejo.msvc_producto.mappers.CategoryMapper;
 import com.parejo.msvc_producto.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResDTO> findAll(Pageable pageable) {
 
-        Page<Category> categories = categoryRepository.findAllWhereIsActiveTrue(pageable);
+        Page<Category> categories = categoryRepository.findAllByIsActiveTrue(pageable);
 
         return categories.map(categoryMapper::toCategoryResDTO);
     }
@@ -40,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public CategoryResDTO findById(Long id) {
-       Category category = categoryRepository.findByIdWhereIsActiveTrue(id)
+       Category category = categoryRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
        return categoryMapper.toCategoryResDTO(category);
     }
@@ -48,8 +50,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Category category = categoryRepository.findByIdWhereIsActiveTrue(id)
+        Category category = categoryRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+        if (!category.getProducts().isEmpty()) {
+            throw new DataIntegrityViolationException("La categoria tiene productos enlazados");
+        }
         category.setIsActive(false);
     }
 }
