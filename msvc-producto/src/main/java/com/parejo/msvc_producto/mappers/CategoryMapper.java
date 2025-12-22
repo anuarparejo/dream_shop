@@ -20,7 +20,9 @@ public class CategoryMapper {
         return new CategoryResDTO(
                 category.getId(),
                 category.getName(),
-                category.getType()
+                category.getType(),
+                category.getCreatedAt(),
+                category.getUpdatedAt()
         );
     }
 }

@@ -2,11 +2,12 @@ package com.parejo.msvc_producto.dtos.res;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record ProductResDTO(
-        Long 
+        Long
         id,
-        
+
         String
         name,
 
@@ -26,6 +27,12 @@ public record ProductResDTO(
         imageUrl,
 
         Double
-        discountPercentage
+        discountPercentage,
+
+        LocalDateTime
+        createdAt,
+
+        LocalDateTime
+        updatedAt
 ) {
 }

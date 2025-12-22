@@ -34,10 +34,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResDTO save(@NonNull ProductReqDTO dto) {
-        Category category = categoryRepository.findByIdAndIsActiveTrue(dto.categoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
-        System.out.println(category);
-
+        Category category = findCategoryOrThrow(dto.categoryId());
         Product product = productMapper.toEntity(dto, category);
         Product productSaved = productRepository.save(product);
 
@@ -47,16 +44,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductResDTO findById(Long id) {
-        Product product = productRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Producto no encontrado"));
-            return  productMapper.toResDTO(product);
+        Product product = findProductOrThrow(id);
+        return productMapper.toResDTO(product);
     }
 
     @Override
     public Page<ProductResDTO> findByCategoryIdAndIsActiveTrue(Long categoryId, Pageable pageable) {
-        Category category = categoryRepository.findByIdAndIsActiveTrue(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+        Category category = findCategoryOrThrow(categoryId);
 
         Page<Product> products = productRepository.findByCategoryIdAndIsActiveTrue(category.getId(), pageable);
 
@@ -67,23 +61,30 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Product product = productRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Producto no encontrado"));
+        Product product = findProductOrThrow(id);
         product.setIsActive(false);
     }
 
     @Override
     @Transactional
     public ProductResDTO update(Long id, ProductReqDTO dto) {
-        productRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Producto no encontrado"));
-        Category category = categoryRepository.findByIdAndIsActiveTrue(dto.categoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+        findProductOrThrow(id);
+        Category category = findCategoryOrThrow(dto.categoryId());
 
         Product productSaved = productMapper.toEntity(id, dto, category);
 
         return productMapper.toResDTO(productRepository.save(productSaved));
+    }
+
+    private Product findProductOrThrow(Long id) {
+        return productRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Producto no encontrado"));
+    }
+
+    private Category findCategoryOrThrow(Long CategoryId) {
+        return categoryRepository.findByIdAndIsActiveTrue(CategoryId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Categoria no encontrada"));
     }
 }

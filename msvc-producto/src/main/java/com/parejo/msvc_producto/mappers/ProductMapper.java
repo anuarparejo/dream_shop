@@ -49,7 +49,9 @@ public class ProductMapper {
                 entity.getStockQuantity(),
                 categoryMapper.toCategoryResDTO(entity.getCategory()),
                 entity.getImageUrl(),
-                entity.getDiscountPercentage()
+                entity.getDiscountPercentage(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
         );
     }
 

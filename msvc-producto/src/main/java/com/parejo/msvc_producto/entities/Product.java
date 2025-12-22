@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 @Builder
-public class Product {
+public class Product extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

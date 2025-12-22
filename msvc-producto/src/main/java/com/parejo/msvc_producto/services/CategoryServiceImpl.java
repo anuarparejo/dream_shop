@@ -42,19 +42,23 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public CategoryResDTO findById(Long id) {
-       Category category = categoryRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+       Category category = findCategoryOrThrow(id);
        return categoryMapper.toCategoryResDTO(category);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        Category category = categoryRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
+        Category category = findCategoryOrThrow(id);
         if (!category.getProducts().isEmpty()) {
             throw new DataIntegrityViolationException("La categoria tiene productos enlazados");
         }
         category.setIsActive(false);
+    }
+
+    private Category findCategoryOrThrow(Long id) {
+        return categoryRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Categoria no encontrada"));
     }
 }

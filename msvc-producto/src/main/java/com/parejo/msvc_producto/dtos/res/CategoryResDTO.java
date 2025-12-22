@@ -1,6 +1,8 @@
 package com.parejo.msvc_producto.dtos.res;
 
 
+import java.time.LocalDateTime;
+
 public record CategoryResDTO(
         Long
         id,
@@ -9,6 +11,13 @@ public record CategoryResDTO(
         name,
 
         String
-        type
+        type,
+
+        LocalDateTime
+        createdAt,
+
+        LocalDateTime
+        updatedAt
+
 ) {
 }
