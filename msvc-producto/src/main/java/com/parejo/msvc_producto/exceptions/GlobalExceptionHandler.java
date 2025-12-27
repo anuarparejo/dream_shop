@@ -1,5 +1,6 @@
 package com.parejo.msvc_producto.exceptions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
 
@@ -21,6 +23,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("message", ex.getMessage());
         body.put("status", HttpStatus.NOT_FOUND.value());
+        log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
@@ -37,7 +40,7 @@ public class GlobalExceptionHandler {
         body.put("message", errors);
         body.put("errors", ex.getMessage());
         body.put("status", HttpStatus.BAD_REQUEST.value());
-
+        log.error(ex.getMessage(), ex);
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
@@ -49,6 +52,7 @@ public class GlobalExceptionHandler {
         body.put("message", "Ocurrió un error inesperado en el servidor");
         body.put("errors", ex.getMessage());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        log.error("ex.getMessage() ", ex);
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -60,6 +64,7 @@ public class GlobalExceptionHandler {
         body.put("message", "El recurso está siendo utilizado por otros elementos.");
         body.put("errors", ex.getMessage());
         body.put("status", HttpStatus.CONFLICT.value());
+        log.error("El recurso está siendo utilizado por otros elementos. ", ex);
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
@@ -70,7 +75,7 @@ public class GlobalExceptionHandler {
         body.put("message", "Solicitud inválida");
         body.put("errors", ex.getMessage());
         body.put("status", HttpStatus.BAD_REQUEST.value());
-
+        log.error("Solicitud inválida ", ex);
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }

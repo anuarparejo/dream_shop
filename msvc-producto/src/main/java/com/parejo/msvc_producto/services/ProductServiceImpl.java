@@ -9,6 +9,7 @@ import com.parejo.msvc_producto.mappers.ProductMapper;
 import com.parejo.msvc_producto.repositories.CategoryRepository;
 import com.parejo.msvc_producto.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -37,6 +39,8 @@ public class ProductServiceImpl implements ProductService {
         Category category = findCategoryOrThrow(dto.categoryId());
         Product product = productMapper.toEntity(dto, category);
         Product productSaved = productRepository.save(product);
+
+        log.info("Producto creado exitosamente con ID: {} y nombre: {}", product.getId(), product.getName());
 
         return productMapper.toResDTO(productSaved);
     }
@@ -63,6 +67,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteById(Long id) {
         Product product = findProductOrThrow(id);
         product.setIsActive(false);
+        log.info("Producto desactivado exitosamente con ID: {} y nombre: {}", product.getId(), product.getName());
     }
 
     @Override
@@ -72,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
         Category category = findCategoryOrThrow(dto.categoryId());
 
         Product productSaved = productMapper.toEntity(id, dto, category);
-
+        log.info("Producto actualizado exitosamente con ID: {} y nombre: {}", productSaved.getId(), productSaved.getName());
         return productMapper.toResDTO(productRepository.save(productSaved));
     }
 
