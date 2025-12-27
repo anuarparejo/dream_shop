@@ -17,8 +17,8 @@ public class ProductData {
     public static Category createCategory() {
         List<Product> products = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        return Category.builder().
-                id(1L)
+        return Category.builder()
+                .id(1L)
                 .name("Tecnologia")
                 .type("Moderna")
                 .products(products)
@@ -36,7 +36,7 @@ public class ProductData {
         return Product.builder()
                 .id(1L)
                 .name("Laptop")
-                .description("Ryzen 5 3045")
+                .description("Ryzen 5 3045, Ryzen 5 3045, Ryzen 5 3045, Ryzen 5 3045")
                 .price(new BigDecimal("3.00"))
                 .stockQuantity(30)
                 .category(createCategory())
@@ -61,7 +61,7 @@ public class ProductData {
         return new ProductResDTO(
                 1L,
                 "Laptop",
-                "Ryzen 5 3045",
+                "Ryzen 5 3045, Ryzen 5 3045, Ryzen 5 3045, Ryzen 5 3045",
                 new BigDecimal("3.00"),
                 30,
                 createCategoryResDTO(),
@@ -79,7 +79,7 @@ public class ProductData {
 
     public static ProductReqDTO createProductReqDTO() {
         return new ProductReqDTO("Laptop",
-                "Ryzen 5 3045",
+                "Ryzen 5 3045, Ryzen 5 3045, Ryzen 5 3045, Ryzen 5 3045",
                 new BigDecimal("3.00"),
                 30,
                 1L,

@@ -67,11 +67,11 @@ class ProductServiceImplTest {
     @Test
     void save_ShouldThrowException_WhenCategoryDoesNotExist() {
 
-        // Arrange
+
         ProductReqDTO req = ProductData.createProductReqDTO();
         when(categoryRepository.findByIdAndIsActiveTrue(req.categoryId())).thenReturn(Optional.empty());
 
-        // Act & Assert
+
         assertThrows(ResourceNotFoundException.class, () -> productService.save(req));
         // Verificaciones de comportamiento
         verify(categoryRepository, times(1)).findByIdAndIsActiveTrue(req.categoryId());
@@ -217,9 +217,10 @@ class ProductServiceImplTest {
         ProductResDTO expectedRes = createProductResDTO();
 
         when(productRepository.findByIdAndIsActiveTrue(productId)).thenReturn(Optional.of(existingProduct));
+
         when(categoryRepository.findByIdAndIsActiveTrue(newCategoryId)).thenReturn(Optional.of(newCategory));
         when(productMapper.toEntity(productId, updateDto, newCategory)).thenReturn(updatedProduct);
-        when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
+        when(productRepository.save(updatedProduct)).thenReturn(updatedProduct);
         when(productMapper.toResDTO(updatedProduct)).thenReturn(expectedRes);
 
         ProductResDTO result = productService.update(productId, updateDto);
@@ -227,9 +228,8 @@ class ProductServiceImplTest {
         assertNotNull(result);
         verify(productRepository).findByIdAndIsActiveTrue(productId);
         verify(categoryRepository).findByIdAndIsActiveTrue(newCategoryId);
-        verify(productRepository).save(any(Product.class));
+        verify(productRepository).save(updatedProduct);
     }
-
 
     @Test
     void updateShouldThrowException_WhenProductDoesNotExist() {
