@@ -17,7 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -243,6 +245,52 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).findByIdAndIsActiveTrue(idNotExist);
         verify(productRepository, never()).save(any(Product.class));
     }
+
+    @Test
+    void findByName_ShouldReturnPageOfDTOs() {
+        // GIVEN
+        String searchName = "Laptop";
+        Pageable pageable = PageRequest.of(0, 10);
+        Product product = createProduct();
+        product.setName(searchName);
+        Page<Product> productPage = new PageImpl<>(List.of(product));
+        ProductResDTO expectedDto = createProductResDTO();
+
+        when(productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(eq(searchName), eq(pageable)))
+                .thenReturn(productPage);
+
+        when(productMapper.toResDTO(any(Product.class)))
+                .thenReturn(expectedDto);
+
+        Page<ProductResDTO> result = productService.findByName(searchName, pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(expectedDto.name(), result.getContent().getFirst().name());
+
+        verify(productRepository).findByNameContainingIgnoreCaseAndIsActiveTrue(searchName, pageable);
+        verify(productMapper).toResDTO(any(Product.class));
+    }
+
+    @Test
+
+    void findByName_ShouldReturnEmptyPage_WhenNoMatchesFound() {
+        String searchName = "Inexistente";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Product> emptyPage = new PageImpl<>(Collections.emptyList());
+
+        when(productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(anyString(), any(Pageable.class)))
+                .thenReturn(emptyPage);
+
+        Page<ProductResDTO> result = productService.findByName(searchName, pageable);
+
+        assertTrue(result.isEmpty());
+        assertEquals(0, result.getTotalElements());
+
+        verify(productMapper, never()).toResDTO(any());
+    }
+
+
 
 
 }

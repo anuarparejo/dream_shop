@@ -31,7 +31,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(dto));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<ProductResDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.findById(id));
     }
@@ -51,4 +51,11 @@ public class ProductController {
     public ResponseEntity<Page<ProductResDTO>> findByCategoryId(@PathVariable Long categoryId,@PageableDefault Pageable pageable) {
         return ResponseEntity.ok(productService.findByCategoryIdAndIsActiveTrue(categoryId, pageable));
     }
+
+    @GetMapping("/{name}")
+    public ResponseEntity<Page<ProductResDTO>> findByName(@PathVariable String name, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(productService.findByName(name, pageable));
+    }
+
+
 }

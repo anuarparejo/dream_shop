@@ -76,6 +76,13 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toResDTO(productRepository.save(productSaved));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductResDTO> findByName(String name, Pageable pageable) {
+        Page<Product> products = productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(name, pageable);
+        return products.map(productMapper::toResDTO);
+    }
+
     private Product findProductOrThrow(Long id) {
         return productRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() ->
@@ -87,4 +94,6 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Categoria no encontrada"));
     }
+
+
 }

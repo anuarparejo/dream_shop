@@ -156,18 +156,15 @@ class CategoryServiceImplTest {
 
     @Test
     void update_ShouldThrowException_WhenCategoryDoesNotExist() {
-        // GIVEN
         Long id = 99L;
         CategoryReqDTO updateDto = createCategoryReqDTO();
 
         when(categoryRepository.findByIdAndIsActiveTrue(id)).thenReturn(Optional.empty());
 
-        // WHEN & THEN
         assertThrows(ResourceNotFoundException.class, () ->
                 categoryService.update(id, updateDto)
         );
 
-        // Verificamos que NUNCA se intentó guardar nada si no se encontró la categoría
         verify(categoryRepository, never()).save(any());
         verify(categoryMapper, never()).toCategory(anyLong(), any());
     }

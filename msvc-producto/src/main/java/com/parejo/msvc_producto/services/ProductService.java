@@ -12,4 +12,6 @@ public interface ProductService {
     Page<ProductResDTO> findByCategoryIdAndIsActiveTrue(Long categoryId, Pageable pageable);
     void deleteById(Long id);
     ProductResDTO update(Long id, ProductReqDTO dto);
+    Page<ProductResDTO> findByName(String name, Pageable pageable);
+
 }

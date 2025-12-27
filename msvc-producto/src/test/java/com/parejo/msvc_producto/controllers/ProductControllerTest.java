@@ -17,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import static com.parejo.msvc_producto.util.ProductData.*;
@@ -114,14 +115,14 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/products/{id} - Debe retornar un producto por su id")
+    @DisplayName("GET /api/products/id/{id} - Debe retornar un producto por su id")
     void getById_ShouldReturnProduct() throws Exception {
         Long id = 1L;
         ProductResDTO productResDTO = createProductResDTO();
 
         when(productService.findById(id)).thenReturn(productResDTO);
 
-        mockMvc.perform(get("/api/products/{id}", id)
+        mockMvc.perform(get("/api/products/id/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productResDTO)))
                 .andExpect(status().isOk())
@@ -131,14 +132,14 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/products/{id} - Debe retornar notFound cuando el producto no exista")
+    @DisplayName("GET /api/products/id/{id} - Debe retornar notFound cuando el producto no exista")
     void getById_ShouldReturnNotFound_WhenProductNotFound() throws Exception {
         Long idNotFound = 1L;
 
         when(productService.findById(idNotFound))
                 .thenThrow(new ResourceNotFoundException("Producto no encontrado"));
 
-        mockMvc.perform(get("/api/products/{id}", idNotFound)
+        mockMvc.perform(get("/api/products/id/{id}", idNotFound)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
@@ -174,7 +175,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("GET /category/{id} - Debe retornar una lista de productos con una misma categoria")
+    @DisplayName("GET /api/products/category/{id} - Debe retornar una lista de productos con una misma categoria")
     void listByCategory_ShouldReturnProducts() throws Exception {
         Long categoryId = 1L;
         ProductResDTO productResDTO = createProductResDTO();
@@ -193,7 +194,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("GET /category/{id} - Debe retornar 404 si la categoría no existe")
+    @DisplayName("GET /api/products/category/{id} - Debe retornar 404 si la categoría no existe")
     void listByCategory_ShouldReturnNotFound_WhenCategoryDoesNotExist() throws Exception {
 
         Long categoryId = 999L;
@@ -205,6 +206,52 @@ class ProductControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(productService).findByCategoryIdAndIsActiveTrue(eq(categoryId), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/products/{name} - Debe retornar productos que coincidan con el nombre")
+    void findByName_ShouldReturnPageOfProducts() throws Exception {
+        String searchName = "Laptop";
+        ProductResDTO productResDTO = createProductResDTO();
+        Page<ProductResDTO> page = new PageImpl<>(List.of(productResDTO));
+
+        when(productService.findByName(eq(searchName), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/products/{name}", searchName)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].name").value("Laptop"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+
+        verify(productService).findByName(eq(searchName), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/products/{name} - Debe retornar página vacía si no hay coincidencias")
+    void findByName_ShouldReturnEmptyPage_WhenNoMatch() throws Exception {
+        String searchName = "Inexistente";
+        Page<ProductResDTO> emptyPage = new PageImpl<>(Collections.emptyList());
+
+        when(productService.findByName(eq(searchName), any(Pageable.class)))
+                .thenReturn(emptyPage);
+
+        mockMvc.perform(get("/api/products/{name}", searchName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andExpect(jsonPath("$.totalElements").value(0));
+    }
+
+    @Test
+    @DisplayName("GET /api/products/{name} - Debe retornar 400 si el término de búsqueda es inválido")
+    void findByName_ShouldReturnBadRequest_WhenNameIsInvalid() throws Exception {
+        String shortName = "a";
+
+        when(productService.findByName(eq(shortName), any(Pageable.class)))
+                .thenThrow(new IllegalArgumentException("El nombre debe tener al menos 3 caracteres"));
+
+        mockMvc.perform(get("/api/products/{name}", shortName))
+                .andExpect(status().isBadRequest());
     }
 
 
