@@ -8,7 +8,7 @@ import com.parejo.msvc_producto.services.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.parejo.msvc_producto.util.ProductData.*;
+import static com.parejo.msvc_producto.util.ProductData.createProductResDTO;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -57,6 +58,21 @@ class ProductControllerTest {
 
         verify(productService).save(reqDto);
 
+    }
+
+    @Test
+    @DisplayName("PUT /{id} - Debe actualizar y retornar 200")
+    void update_ShouldReturnOk() throws Exception {
+        ProductReqDTO req = createProductReqDTO();
+        ProductResDTO res = createProductResDTO();
+
+        when(productService.update(eq(1L), any(ProductReqDTO.class))).thenReturn(res);
+
+        mockMvc.perform(put("/api/products/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Laptop"));
     }
 
     @Test
