@@ -23,6 +23,7 @@
     <modules>
 
         <module>msvc-producto</module>
+        <module>msvc-usuario</module>
 
     </modules>
 
