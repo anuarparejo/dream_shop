@@ -1,16 +1,57 @@
 services:
-  postgres-db:
-    image: postgres:17-alpine
-    container_name: dreamshop-postgres
-    restart: always
+  # --- BASE DE DATOS POSTGRES ---
+  msvc-productos-db:
+    image: postgres:16-alpine
+    container_name: msvc-productos-db
     environment:
-      - POSTGRES_DB=msvc_products
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=password123
+      POSTGRES_DB: msvc_products
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
     ports:
       - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
-volumes:
-  postgres_data:
+  # --- BASE DE DATOS MYSQL ---
+  msvc-usuarios-db:
+    image: mysql:8.0
+    container_name: msvc-usuarios-db
+    environment:
+      MYSQL_DATABASE: msvc_users
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password123
+    ports:
+      - "3307:3306"
+
+  # --- MICROSERVICIO PRODUCTOS ---
+  msvc-producto:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE_NAME: msvc-producto
+    container_name: msvc-productos-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://msvc-productos-db:5432/msvc_products
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=password123
+    depends_on:
+      - msvc-productos-db
+
+#   --- MICROSERVICIO USUARIOS ---
+#  msvc-usuarios:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#      args:
+#        MODULE_NAME: msvc-usuarios
+#    container_name: msvc-usuarios-app
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://msvc-usuarios-db:3306/msvc_users
+#      - SPRING_DATASOURCE_USERNAME=admin
+#      - SPRING_DATASOURCE_PASSWORD=password123
+#    depends_on:
+#      - msvc-usuarios-db
