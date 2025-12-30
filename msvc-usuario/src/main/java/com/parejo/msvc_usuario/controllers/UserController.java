@@ -1,6 +1,7 @@
 package com.parejo.msvc_usuario.controllers;
 
 import com.parejo.msvc_usuario.dtos.req.UserReqDTO;
+import com.parejo.msvc_usuario.dtos.req.UserSearchDTO;
 import com.parejo.msvc_usuario.dtos.res.UserResDTO;
 import com.parejo.msvc_usuario.services.UserService;
 import jakarta.validation.Valid;
@@ -28,19 +29,14 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll(pageable));
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<Page<UserResDTO>> filter(UserSearchDTO filters, Pageable pageable) {
+        return ResponseEntity.ok(userService.findByFilters(filters, pageable));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
-    }
-
-    @GetMapping("/search-email")
-    public ResponseEntity<UserResDTO> getByEmail(@RequestParam String email) {
-        return ResponseEntity.ok(userService.findByEmail(email));
-    }
-
-    @GetMapping("/search-name")
-    public ResponseEntity<Page<UserResDTO>> searchByName(@RequestParam String name, Pageable pageable) {
-        return ResponseEntity.ok(userService.findByName(name, pageable));
     }
 
     @PutMapping("/{id}")

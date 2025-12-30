@@ -2,6 +2,7 @@ package com.parejo.msvc_usuario.services;
 
 import com.parejo.msvc_usuario.dtos.res.RoleResDTO;
 import com.parejo.msvc_usuario.entities.Role;
+import com.parejo.msvc_usuario.exceptions.ResourceNotFoundException;
 import com.parejo.msvc_usuario.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,9 @@ public class RoleServiceImpl implements RoleService {
     @Transactional
     public RoleResDTO save(String name) {
         roleRepository.findByNameAndIsActiveTrue(name)
-                .ifPresent(r -> { throw new RuntimeException("El rol ya existe y está activo"); });
+                .ifPresent(r -> {
+                    throw new RuntimeException("El rol ya existe y está activo");
+                });
 
         Role role = Role.builder()
                 .name(name.toUpperCase())
@@ -32,8 +35,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public RoleResDTO update(Long id, String newName) {
-        Role role = roleRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado o inactivo"));
+        Role role = findRoleOrThrow(id);
 
         role.setName(newName.toUpperCase());
         return new RoleResDTO(role.getId(), roleRepository.save(role).getName());
@@ -49,17 +51,21 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(readOnly = true)
     public RoleResDTO findById(Long id) {
-        return roleRepository.findByIdAndIsActiveTrue(id)
-                .map(r -> new RoleResDTO(r.getId(), r.getName()))
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));
+        Role role = findRoleOrThrow(id);
+        return new RoleResDTO(role.getId(), role.getName());
+
     }
 
     @Override
     @Transactional
     public void deleteLogically(Long id) {
-        Role role = roleRepository.findByIdAndIsActiveTrue(id)
-                .orElseThrow(() -> new RuntimeException("No se puede eliminar: Rol no encontrado"));
+        Role role = findRoleOrThrow(id);
         role.setIsActive(false);
         roleRepository.save(role);
+    }
+
+    private Role findRoleOrThrow(Long id) {
+        return roleRepository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
     }
 }
