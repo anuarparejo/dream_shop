@@ -1,9 +1,9 @@
-package com.parejo.msvc_usuarios.mappers;
+package com.parejo.msvc_usuario.mappers;
 
-import com.parejo.msvc_usuarios.dtos.req.UserReqDTO;
-import com.parejo.msvc_usuarios.dtos.res.RoleResDTO;
-import com.parejo.msvc_usuarios.dtos.res.UserResDTO;
-import com.parejo.msvc_usuarios.entities.User;
+import com.parejo.msvc_usuario.dtos.req.UserReqDTO;
+import com.parejo.msvc_usuario.dtos.res.RoleResDTO;
+import com.parejo.msvc_usuario.dtos.res.UserResDTO;
+import com.parejo.msvc_usuario.entities.User;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -36,7 +36,6 @@ public class UserMapper {
                 entity.getId(),
                 entity.getName(),
                 entity.getEmail(),
-                entity.getIsActive(),
                 roleDtos
         );
     }

@@ -1,6 +1,7 @@
 package com.parejo.msvc_producto.services;
 
 import com.parejo.msvc_producto.dtos.req.ProductReqDTO;
+import com.parejo.msvc_producto.dtos.req.ProductSearchDTO;
 import com.parejo.msvc_producto.dtos.res.ProductResDTO;
 import com.parejo.msvc_producto.entities.Category;
 import com.parejo.msvc_producto.entities.Product;
@@ -18,8 +19,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Collections;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +69,26 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void findByFilters_ShouldReturnPageOfDtos() {
+        // GIVEN
+        ProductSearchDTO filters = new ProductSearchDTO("Laptop", 1L, BigDecimal.ZERO, BigDecimal.valueOf(1000), true);
+        Pageable pageable = PageRequest.of(0, 10);
+        Product product = new Product();
+        Page<Product> productPage = new PageImpl<>(List.of(product));
+
+        when(productRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(productPage);
+        when(productMapper.toResDTO(any(Product.class))).thenReturn(mock(ProductResDTO.class));
+
+        // WHEN
+        Page<ProductResDTO> result = productService.findByFilters(filters, pageable);
+
+        // THEN
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(productRepository, times(1)).findAll(any(Specification.class), eq(pageable));
+    }
+
+    @Test
     void save_ShouldThrowException_WhenCategoryDoesNotExist() {
 
 
@@ -75,13 +97,9 @@ class ProductServiceImplTest {
 
 
         assertThrows(ResourceNotFoundException.class, () -> productService.save(req));
-        // Verificaciones de comportamiento
+
         verify(categoryRepository, times(1)).findByIdAndIsActiveTrue(req.categoryId());
-
-        // Verificamos que NO se intentó guardar nada
         verify(productRepository, never()).save(any(Product.class));
-
-        // Verificamos que el Mapper no se tocó
         verifyNoInteractions(productMapper);
     }
 
@@ -163,49 +181,6 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void findByCategoryId_ShouldReturnProductResDTO_WhenProductExists() {
-        Long categoryId = 1L;
-        Category category = createCategory();
-        category.setId(categoryId);
-        Product product = createProduct();
-        ProductResDTO expectedRes = createProductResDTO();
-        PageRequest pageable = PageRequest.of(0, 10);
-        Page<Product> productPage = new PageImpl<>(List.of(product), pageable, 1);
-
-        when(categoryRepository.findByIdAndIsActiveTrue(categoryId)).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdAndIsActiveTrue(categoryId, pageable)).thenReturn(productPage);
-        when(productMapper.toResDTO(product)).thenReturn(expectedRes);
-
-        Page<ProductResDTO> result = productService.findByCategoryIdAndIsActiveTrue(categoryId, pageable);
-
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        assertThat(result.getContent().getFirst())
-                .usingRecursiveComparison()
-                .isEqualTo(expectedRes);
-
-        verify(categoryRepository, times(1)).findByIdAndIsActiveTrue(categoryId);
-        verify(productRepository, times(1)).findByCategoryIdAndIsActiveTrue(categoryId, pageable);
-        verify(productMapper, times(1)).toResDTO(product);
-    }
-
-    @Test
-    void findByCategoryId_ShouldThrowException_WhenCategoryDoesNotExist() {
-        Long categoryId = 1L;
-        Category category = createCategory();
-        category.setId(categoryId);
-        PageRequest pageable = PageRequest.of(0, 10);
-
-        when(categoryRepository.findByIdAndIsActiveTrue(categoryId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> productService.findByCategoryIdAndIsActiveTrue(categoryId, pageable));
-
-        verify(categoryRepository, times(1)).findByIdAndIsActiveTrue(categoryId);
-        verify(productMapper, never()).toResDTO(any());
-    }
-
-
-    @Test
     void update_ShouldReturnUpdatedProductResDTO_WhenProductAndCategoryExist() {
         Long productId = 1L;
         Long newCategoryId = 1L;
@@ -246,49 +221,11 @@ class ProductServiceImplTest {
         verify(productRepository, never()).save(any(Product.class));
     }
 
-    @Test
-    void findByName_ShouldReturnPageOfDTOs() {
-        // GIVEN
-        String searchName = "Laptop";
-        Pageable pageable = PageRequest.of(0, 10);
-        Product product = createProduct();
-        product.setName(searchName);
-        Page<Product> productPage = new PageImpl<>(List.of(product));
-        ProductResDTO expectedDto = createProductResDTO();
 
-        when(productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(eq(searchName), eq(pageable)))
-                .thenReturn(productPage);
 
-        when(productMapper.toResDTO(any(Product.class)))
-                .thenReturn(expectedDto);
 
-        Page<ProductResDTO> result = productService.findByName(searchName, pageable);
 
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        assertEquals(expectedDto.name(), result.getContent().getFirst().name());
 
-        verify(productRepository).findByNameContainingIgnoreCaseAndIsActiveTrue(searchName, pageable);
-        verify(productMapper).toResDTO(any(Product.class));
-    }
-
-    @Test
-
-    void findByName_ShouldReturnEmptyPage_WhenNoMatchesFound() {
-        String searchName = "Inexistente";
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Product> emptyPage = new PageImpl<>(Collections.emptyList());
-
-        when(productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(anyString(), any(Pageable.class)))
-                .thenReturn(emptyPage);
-
-        Page<ProductResDTO> result = productService.findByName(searchName, pageable);
-
-        assertTrue(result.isEmpty());
-        assertEquals(0, result.getTotalElements());
-
-        verify(productMapper, never()).toResDTO(any());
-    }
 
 
 

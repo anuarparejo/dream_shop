@@ -1,7 +1,7 @@
-package com.parejo.msvc_usuarios;
+package com.parejo.msvc_usuario;
 
-import com.parejo.msvc_usuarios.entities.Role;
-import com.parejo.msvc_usuarios.repositories.RoleRepository;
+import com.parejo.msvc_usuario.entities.Role;
+import com.parejo.msvc_usuario.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

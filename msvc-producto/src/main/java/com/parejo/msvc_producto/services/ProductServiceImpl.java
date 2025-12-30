@@ -1,6 +1,7 @@
 package com.parejo.msvc_producto.services;
 
 import com.parejo.msvc_producto.dtos.req.ProductReqDTO;
+import com.parejo.msvc_producto.dtos.req.ProductSearchDTO;
 import com.parejo.msvc_producto.dtos.res.ProductResDTO;
 import com.parejo.msvc_producto.entities.Category;
 import com.parejo.msvc_producto.entities.Product;
@@ -8,13 +9,16 @@ import com.parejo.msvc_producto.exceptions.ResourceNotFoundException;
 import com.parejo.msvc_producto.mappers.ProductMapper;
 import com.parejo.msvc_producto.repositories.CategoryRepository;
 import com.parejo.msvc_producto.repositories.ProductRepository;
+import com.parejo.msvc_producto.specifications.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 
 @Service
@@ -31,6 +35,23 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResDTO> findAll(Pageable pageable) {
         Page<Product> products = productRepository.findAllByIsActiveTrue(pageable);
         return products.map(productMapper::toResDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductResDTO> findByFilters(ProductSearchDTO filters, Pageable pageable) {
+
+        Specification<Product> spec = Specification.where(ProductSpecifications.isNotDeleted())
+                .and(ProductSpecifications.hasName(filters.name()))
+                .and(ProductSpecifications.hasCategoryId(filters.categoryId()))
+                .and(ProductSpecifications.priceBetween(filters.minPrice(), filters.maxPrice()));
+
+        if (Boolean.TRUE.equals(filters.onlyWithStock())) {
+            spec = spec.and(ProductSpecifications.hasStock());
+        }
+
+        return productRepository.findAll(spec, pageable)
+                .map(productMapper::toResDTO);
     }
 
     @Override
@@ -52,14 +73,6 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toResDTO(product);
     }
 
-    @Override
-    public Page<ProductResDTO> findByCategoryIdAndIsActiveTrue(Long categoryId, Pageable pageable) {
-        Category category = findCategoryOrThrow(categoryId);
-
-        Page<Product> products = productRepository.findByCategoryIdAndIsActiveTrue(category.getId(), pageable);
-
-        return products.map(productMapper::toResDTO);
-    }
 
 
     @Override
@@ -81,12 +94,6 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toResDTO(productRepository.save(productSaved));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ProductResDTO> findByName(String name, Pageable pageable) {
-        Page<Product> products = productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(name, pageable);
-        return products.map(productMapper::toResDTO);
-    }
 
     private Product findProductOrThrow(Long id) {
         return productRepository.findByIdAndIsActiveTrue(id)

@@ -1,4 +1,4 @@
-package com.parejo.msvc_usuarios.entities;
+package com.parejo.msvc_usuario.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

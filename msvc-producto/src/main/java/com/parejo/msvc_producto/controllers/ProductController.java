@@ -1,6 +1,7 @@
 package com.parejo.msvc_producto.controllers;
 
 import com.parejo.msvc_producto.dtos.req.ProductReqDTO;
+import com.parejo.msvc_producto.dtos.req.ProductSearchDTO;
 import com.parejo.msvc_producto.dtos.res.ProductResDTO;
 import com.parejo.msvc_producto.services.ProductService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 
 @RestController
@@ -26,12 +28,20 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAll(pageable));
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<Page<ProductResDTO>> filterProducts(
+            ProductSearchDTO filters,
+            Pageable pageable) {
+
+        return ResponseEntity.ok(productService.findByFilters(filters, pageable));
+    }
+
     @PostMapping
     public ResponseEntity<ProductResDTO> create(@Valid @RequestBody ProductReqDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(dto));
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ProductResDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.findById(id));
     }
@@ -44,16 +54,6 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResDTO> update(@PathVariable Long id, @Valid @RequestBody ProductReqDTO dto) {
         return ResponseEntity.ok(productService.update(id,dto));
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Page<ProductResDTO>> findByCategoryId(@PathVariable Long categoryId,@PageableDefault Pageable pageable) {
-        return ResponseEntity.ok(productService.findByCategoryIdAndIsActiveTrue(categoryId, pageable));
-    }
-
-    @GetMapping("/{name}")
-    public ResponseEntity<Page<ProductResDTO>> findByName(@PathVariable String name, @PageableDefault Pageable pageable) {
-        return ResponseEntity.ok(productService.findByName(name, pageable));
     }
 
 
