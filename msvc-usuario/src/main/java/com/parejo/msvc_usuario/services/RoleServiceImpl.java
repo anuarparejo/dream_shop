@@ -6,6 +6,7 @@ import com.parejo.msvc_usuario.exceptions.ResourceNotFoundException;
 import com.parejo.msvc_usuario.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +44,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<RoleResDTO> findAll() {
-        return roleRepository.findAllByIsActiveTrue()
+    public Page<RoleResDTO> findAll(Pageable pageable) {
+        return roleRepository.findAllByIsActiveTrue(pageable)
                 .map(r -> new RoleResDTO(r.getId(), r.getName()));
     }
 

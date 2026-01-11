@@ -4,6 +4,8 @@ import com.parejo.msvc_usuario.dtos.res.RoleResDTO;
 import com.parejo.msvc_usuario.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,8 @@ public class RoleController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RoleResDTO>> getAll() {
-        return ResponseEntity.ok(roleService.findAll());
+    public ResponseEntity<Page<RoleResDTO>> getAll(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(roleService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
