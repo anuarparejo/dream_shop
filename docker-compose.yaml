@@ -24,11 +24,7 @@ services:
 
   # --- MICROSERVICIO PRODUCTOS ---
   msvc-producto:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        MODULE_NAME: msvc-producto
+    image: anuarparejo/msvc-producto:latest
     container_name: msvc-productos-app
     ports:
       - "8081:8081"
@@ -41,11 +37,7 @@ services:
 
 #   --- MICROSERVICIO USUARIOS ---
   msvc-usuario:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        MODULE_NAME: msvc-usuario
+    image: anuarparejo/msvc-usuario:latest
     container_name: msvc-usuario-app
     ports:
       - "8082:8082"
