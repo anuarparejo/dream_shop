@@ -39,16 +39,15 @@ Gracias a Docker, no necesitas instalar las bases de datos localmente. Todo el e
    ```bash
    git clone [https://github.com/tu-usuario/DreamShop.git](https://github.com/tu-usuario/DreamShop.git)
    cd DreamShop
-Compilar los microservicios:
 
-      ```bash
-      ./mvnw clean package -DskipTests
+2. **Compilar los microservicios:**
+    ```bash
+        ./mvnw clean package -DskipTests
 
-Levantar la infraestructura:
-
-      ```bash
-      docker-compose up --build
-      
+3. **Levantar la infraestructura:**
+    ```bash
+       docker-compose up --build
+   
 📊 Endpoints de Monitoreo (Actuator)
 Cada microservicio incluye Spring Boot Actuator para verificar su estado de salud:
 
