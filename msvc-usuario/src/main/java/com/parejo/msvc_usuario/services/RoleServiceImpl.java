@@ -18,14 +18,16 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
-    public RoleResDTO save(String name) {
-        roleRepository.findByNameAndIsActiveTrue(name)
+    public RoleResDTO save(String rol) {
+        final String finalRoleName = formatRoleName(rol);
+
+        roleRepository.findByNameAndIsActiveTrue(finalRoleName)
                 .ifPresent(r -> {
-                    throw new RuntimeException("El rol ya existe y está activo");
+                    throw new RuntimeException("El rol " + finalRoleName + " ya existe");
                 });
 
         Role role = Role.builder()
-                .name(name.toUpperCase())
+                .name(finalRoleName)
                 .isActive(true)
                 .build();
 
@@ -36,9 +38,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public RoleResDTO update(Long id, String newName) {
+        final String finalRoleName = formatRoleName(newName);
         Role role = findRoleOrThrow(id);
 
-        role.setName(newName.toUpperCase());
+        role.setName(finalRoleName);
         return new RoleResDTO(role.getId(), roleRepository.save(role).getName());
     }
 
@@ -68,5 +71,18 @@ public class RoleServiceImpl implements RoleService {
     private Role findRoleOrThrow(Long id) {
         return roleRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
+    }
+
+    private String formatRoleName(String rol) {
+        String formattedRole = rol.trim().toUpperCase();
+
+        if (!formattedRole.startsWith("ROLE_")) {
+            if (formattedRole.startsWith("ROLE")) {
+                formattedRole = formattedRole.replace("ROLE", "ROLE_");
+            } else {
+                formattedRole = "ROLE_" + formattedRole;
+            }
+        }
+        return formattedRole;
     }
 }

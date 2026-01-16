@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResDTO save(UserReqDTO dto) {
+        findByEmailAndThrow(dto);
         User user = userMapper.toEntity(dto);
         user.setPassword(passwordEncoder.encode(dto.password()));
         if (dto.rolesIds() != null) {
@@ -68,13 +69,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResDTO update(Long id, UserReqDTO dto) {
-        User user =  findUserOrThrow(id);
+        User user = findUserOrThrow(id);
+
+        if (!dto.email().equalsIgnoreCase(user.getEmail())) {
+            findByEmailAndThrow(dto);
+        }
 
         user.setName(dto.name());
-        user.setEmail(dto.email());
-        if(dto.password()!=null) user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setEmail(dto.email().toLowerCase());
 
-        if (dto.rolesIds() != null) {
+        if (dto.password() != null && !dto.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.password()));
+        }
+
+        if (dto.rolesIds() != null && !dto.rolesIds().isEmpty()) {
             Set<Role> roles = new HashSet<>(roleRepository.findAllByIdInAndIsActiveTrue(dto.rolesIds()));
             user.setRoles(roles);
         }
@@ -101,5 +109,14 @@ public class UserServiceImpl implements UserService {
     private User findUserOrThrow(Long id) {
         return userRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    }
+
+    private void findByEmailAndThrow(UserReqDTO dto) {
+       userRepository.findByEmailAndIsActiveTrue(dto.email())
+                .ifPresent(user -> {
+                    // todo crear excepcion
+                            throw new RuntimeException("El email " + user.getEmail() +" ya esta en uso");
+                        }
+                );
     }
 }

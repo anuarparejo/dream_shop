@@ -8,14 +8,20 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DataInitializer implements CommandLineRunner {
+public class DataLoader implements CommandLineRunner {
     private final RoleRepository roleRepository;
 
     @Override
     public void run(String... args) {
         if (roleRepository.count() == 0) {
-            roleRepository.save(Role.builder().name("ROLE_USER").build());
-            roleRepository.save(Role.builder().name("ROLE_ADMIN").build());
+            roleRepository.save(Role.builder()
+                    .name("ROLE_USER")
+                    .isActive(true)
+                    .build());
+            roleRepository.save(Role.builder()
+                    .name("ROLE_ADMIN")
+                    .isActive(true)
+                    .build());
         }
     }
 }

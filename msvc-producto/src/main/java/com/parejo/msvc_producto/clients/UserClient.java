@@ -1,6 +1,6 @@
 package com.parejo.msvc_producto.clients;
 
-import com.parejo.msvc_usuario.dtos.res.UserResDTO;
+import com.parejo.msvc_producto.dtos.res.UserResDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

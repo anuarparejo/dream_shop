@@ -1,3 +1,3 @@
-package com.parejo.msvc_usuario.dtos.res;
+package com.parejo.msvc_producto.dtos.res;
 
 public record RoleResDTO(Long id, String name) {}

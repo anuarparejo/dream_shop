@@ -1,5 +1,6 @@
 package com.parejo.msvc_usuario.controllers;
 
+import com.parejo.msvc_usuario.dtos.req.RoleReqDTO;
 import com.parejo.msvc_usuario.dtos.res.RoleResDTO;
 import com.parejo.msvc_usuario.services.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,9 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping
-    public ResponseEntity<RoleResDTO> create(@RequestBody Map<String, String> body) {
+    public ResponseEntity<RoleResDTO> create(@RequestBody RoleReqDTO rol) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(roleService.save(body.get("name")));
+                .body(roleService.save(rol.name()));
     }
 
     @GetMapping
