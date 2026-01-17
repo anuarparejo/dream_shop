@@ -37,7 +37,7 @@ Gracias a Docker, no necesitas instalar las bases de datos localmente. Todo el e
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/tu-usuario/DreamShop.git](https://github.com/tu-usuario/DreamShop.git)
+   git clone https://github.com/anuarparejo/dream_shop.git
    cd DreamShop
 
 2. **Compilar los microservicios:**
